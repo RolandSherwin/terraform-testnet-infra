@@ -36,6 +36,11 @@ resource "aws_ecs_task_definition" "data_prepper" {
                 "containerPort": 4900,
                 "hostPort": 4900,
                 "protocol": "tcp"
+            },
+            {
+                "containerPort": 21890,
+                "hostPort": 21890,
+                "protocol": "tcp"
             }
         ],
         "essential": true,
@@ -82,16 +87,19 @@ resource "aws_ecs_service" "data_prepper" {
   name            = "${terraform.workspace}-opensearch-data-prepper"
   cluster         = aws_ecs_cluster.testnet_infra.id
   task_definition = aws_ecs_task_definition.data_prepper.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
+  load_balancer {
+    target_group_arn = var.data_prepper_service_registry_arn
+    container_port   = 21890
+    container_name   = "${terraform.workspace}-opensearch-data-prepper"
+  }
   network_configuration {
     subnets          = var.public_subnet_ids
     security_groups  = [var.data_prepper_security_group_id]
     assign_public_ip = true
   }
-  service_registries {
-    registry_arn = var.data_prepper_service_registry_arn
-  }
+
 }
 
 resource "aws_ecs_task_definition" "telemetry_collector" {
@@ -160,7 +168,7 @@ resource "aws_ecs_service" "telemetry_collector" {
   name            = "${terraform.workspace}-opensearch-telemetry-collector"
   cluster         = aws_ecs_cluster.testnet_infra.id
   task_definition = aws_ecs_task_definition.telemetry_collector.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
   load_balancer {
     target_group_arn = var.telemetry_collector_target_group_arn

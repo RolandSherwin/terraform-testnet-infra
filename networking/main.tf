@@ -32,16 +32,16 @@ resource "aws_service_discovery_private_dns_namespace" "testnet_infra" {
   vpc         = module.vpc.vpc_id
 }
 
-resource "aws_service_discovery_service" "data_prepper" {
-  name = "data-prepper"
-  dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.testnet_infra.id
-    dns_records {
-      ttl = 10
-      type = "A"
-    }
-  }
-}
+# resource "aws_service_discovery_service" "data_prepper" {
+#   name = "data-prepper"
+#   dns_config {
+#     namespace_id = aws_service_discovery_private_dns_namespace.testnet_infra.id
+#     dns_records {
+#       ttl = 10
+#       type = "A"
+#     }
+#   }
+# }
 
 #
 # Security group and network ACLs for debugging and working with the EFS mounts
@@ -133,41 +133,21 @@ resource "aws_security_group" "data_prepper" {
 
 resource "aws_security_group_rule" "telemetry_collector_data_prepper_http_ingress" {
   type                     = "ingress"
-  description              = "Permits inbound Telemetry Collector traffic access to the Data Prepper"
+  description              = "Permits inbound public access to the Data Prepper"
   from_port                = 4900
   to_port                  = 4900
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.telemetry_collector.id
+  cidr_blocks              = ["0.0.0.0/0"]
   security_group_id        = aws_security_group.data_prepper.id
 }
 
 resource "aws_security_group_rule" "telemetry_collector_data_prepper_ingress" {
   type                     = "ingress"
-  description              = "Permits inbound debugging traffic access to the Data Prepper"
+  description              = "Permits inbound public access to the Data Prepper"
   from_port                = 21890
   to_port                  = 21890
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.telemetry_collector.id
-  security_group_id        = aws_security_group.data_prepper.id
-}
-
-resource "aws_security_group_rule" "debugging_data_prepper_http_ingress" {
-  type                     = "ingress"
-  description              = "Permits inbound debugging traffic access to the Data Prepper"
-  from_port                = 4900
-  to_port                  = 4900
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.debugging.id
-  security_group_id        = aws_security_group.data_prepper.id
-}
-
-resource "aws_security_group_rule" "debugging_data_prepper_ingress" {
-  type                     = "ingress"
-  description              = "Permits inbound debugging traffic access to the Data Prepper"
-  from_port                = 21890
-  to_port                  = 21890
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.debugging.id
+  cidr_blocks              = ["0.0.0.0/0"]
   security_group_id        = aws_security_group.data_prepper.id
 }
 
@@ -312,6 +292,26 @@ resource "aws_lb_listener" "telemetry_collector" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.telemetry_collector.arn
+  }
+}
+
+# 21890 is for receiving data
+resource "aws_lb_target_group" "data_prepper" {
+  name        = "${terraform.workspace}-data-prepper"
+  target_type = "ip"
+  port        = 21890
+  protocol    = "TCP"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_lb_listener" "data_prepper" {
+  load_balancer_arn = aws_lb.testnet_infra.arn
+  port              = "21890"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.data_prepper.arn
   }
 }
 
