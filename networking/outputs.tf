@@ -25,3 +25,7 @@ output "telemetry_collector_security_group_id" {
 output "data_prepper_service_registry_arn" {
   value = aws_service_discovery_service.data_prepper.arn
 }
+
+output "data_prepper_target_group_arn" {
+  value = aws_lb_target_group.data_prepper.arn
+}

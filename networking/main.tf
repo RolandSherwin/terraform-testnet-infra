@@ -122,6 +122,16 @@ resource "aws_security_group_rule" "testnet_infra_data_prepper_egress" {
   security_group_id = aws_security_group.debugging.id
 }
 
+resource "aws_security_group_rule" "testnet_infra_data_prepper_http_data_egress" {
+  type              = "egress"
+  description       = "Permits TCP access to the Data Prepper"
+  from_port         = 2021
+  to_port           = 2021
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.debugging.id
+}
+
 #
 # Security group and network ACLs for the Data Prepper service
 #
@@ -168,6 +178,17 @@ resource "aws_security_group_rule" "debugging_data_prepper_ingress" {
   to_port                  = 21890
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.debugging.id
+  security_group_id        = aws_security_group.data_prepper.id
+}
+
+
+resource "aws_security_group_rule" "data_prepper_public_ingress" {
+  type                     = "ingress"
+  description              = "Permits inbound public access to the Data Prepper"
+  from_port                = 2021
+  to_port                  = 2021
+  protocol                 = "tcp"
+  cidr_blocks              = ["0.0.0.0/0"]
   security_group_id        = aws_security_group.data_prepper.id
 }
 
@@ -312,6 +333,26 @@ resource "aws_lb_listener" "telemetry_collector" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.telemetry_collector.arn
+  }
+}
+
+# 2021 is for receiving data via http
+resource "aws_lb_target_group" "data_prepper" {
+  name        = "${terraform.workspace}-data-prepper"
+  target_type = "ip"
+  port        = 2021
+  protocol    = "TCP"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_lb_listener" "data_prepper" {
+  load_balancer_arn = aws_lb.testnet_infra.arn
+  port              = "2021"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.data_prepper.arn
   }
 }
 
