@@ -14,6 +14,10 @@ output "telemetry_collector_target_group_arn" {
   value = aws_lb_target_group.telemetry_collector.arn
 }
 
+output "telemetry_collector_target_group_arn_1" {
+  value = aws_lb_target_group.telemetry_collector_1.arn
+}
+
 output "telemetry_collector_config_efs_id" {
   value = aws_efs_file_system.telemetry_collector_config.id
 }

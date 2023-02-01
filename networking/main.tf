@@ -291,6 +291,16 @@ resource "aws_security_group_rule" "telemetry_collector_grpc" {
   security_group_id = aws_security_group.telemetry_collector.id
 }
 
+resource "aws_security_group_rule" "telemetry_collector_fluentbit" {
+  type              = "ingress"
+  description       = "Permits inbound public access to the Telemetry Collector 8006"
+  from_port         = 8006
+  to_port           = 8006
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.telemetry_collector.id
+}
+
 resource "aws_security_group_rule" "telemetry_collector_https_egress" {
   type              = "egress"
   description       = "Permits HTTPS internet access for pulling the container"
@@ -333,6 +343,25 @@ resource "aws_lb_listener" "telemetry_collector" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.telemetry_collector.arn
+  }
+}
+
+resource "aws_lb_target_group" "telemetry_collector_1" {
+  name        = "${terraform.workspace}-telemetry-collector-1"
+  target_type = "ip"
+  port        = 8006
+  protocol    = "TCP"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_lb_listener" "telemetry_collector_1" {
+  load_balancer_arn = aws_lb.testnet_infra.arn
+  port              = "8006"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.telemetry_collector_1.arn
   }
 }
 

@@ -57,14 +57,14 @@ service-map-pipeline:
         password: "{{ opensearch_password }}"
         index_type: trace-analytics-service-map
 
-log-pipeline:
-  source:
-    http:
-      ssl: false
-      port: 2021
-  sink:
-    - opensearch:
-        hosts: ["{{ opensearch_domain_url }}"]
-        username: "{{ opensearch_username }}"
-        password: "{{ opensearch_password }}"
-        index: sn_node_logs
+# log-pipeline:
+#   source:
+#     http:
+#       ssl: false
+#       port: 2021
+#   sink:
+#     - opensearch:
+#         hosts: ["{{ opensearch_domain_url }}"]
+#         username: "{{ opensearch_username }}"
+#         password: "{{ opensearch_password }}"
+#         index: sn_node_logs

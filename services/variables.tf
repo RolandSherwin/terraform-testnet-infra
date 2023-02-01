@@ -20,6 +20,10 @@ variable "telemetry_collector_target_group_arn" {
   description = "The ARN of the target group for the telemetry collector service"
 }
 
+variable "telemetry_collector_target_group_arn_1" {
+  description = "The ARN of the target group for the telemetry collector service, fluentbit"
+}
+
 variable "public_subnet_ids" {
   description = "The IDs of the public subnets in the VPC where the services will be deployed"
   type = list

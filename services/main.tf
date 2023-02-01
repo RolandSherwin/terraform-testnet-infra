@@ -116,13 +116,18 @@ resource "aws_ecs_task_definition" "telemetry_collector" {
 [
     {
         "name": "${terraform.workspace}-opensearch-telemetry-collector",
-        "image": "otel/opentelemetry-collector:0.69.0",
+        "image": "otel/opentelemetry-collector-contrib:latest",
         "cpu": 0,
         "memoryReservation": 2048,
         "portMappings": [
             {
                 "containerPort": 4317,
                 "hostPort": 4317,
+                "protocol": "tcp"
+            },
+            {
+                "containerPort": 8006,
+                "hostPort": 8006,
                 "protocol": "tcp"
             }
         ],
@@ -175,6 +180,11 @@ resource "aws_ecs_service" "telemetry_collector" {
   load_balancer {
     target_group_arn = var.telemetry_collector_target_group_arn
     container_port   = 4317
+    container_name   = "${terraform.workspace}-opensearch-telemetry-collector"
+  }
+  load_balancer {
+    target_group_arn = var.telemetry_collector_target_group_arn_1
+    container_port   = 8006
     container_name   = "${terraform.workspace}-opensearch-telemetry-collector"
   }
   network_configuration {

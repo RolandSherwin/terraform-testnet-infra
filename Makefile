@@ -189,6 +189,7 @@ services-sherwin:
 	data_prepper_config_efs_id=$$(terraform output -raw data_prepper_config_efs_id | xargs)
 	telemetry_collector_config_efs_id=$$(terraform output -raw telemetry_collector_config_efs_id | xargs)
 	telemetry_collector_target_group_arn=$$(terraform output -raw telemetry_collector_target_group_arn | xargs)
+	telemetry_collector_target_group_arn_1=$$(terraform output -raw telemetry_collector_target_group_arn_1 | xargs)
 	data_prepper_target_group_arn=$$(terraform output -raw data_prepper_target_group_arn | xargs)
 	public_subnet_ids=$$(terraform output -json public_subnet_ids)
 	telemetry_collector_security_group_id=$$(terraform output -raw telemetry_collector_security_group_id | xargs)
@@ -202,6 +203,7 @@ services-sherwin:
 		-var data_prepper_config_efs_id=$$data_prepper_config_efs_id \
 		-var telemetry_collector_config_efs_id=$$telemetry_collector_config_efs_id \
 		-var telemetry_collector_target_group_arn=$$telemetry_collector_target_group_arn \
+		-var telemetry_collector_target_group_arn_1=$$telemetry_collector_target_group_arn_1 \
 		-var data_prepper_target_group_arn=$$data_prepper_target_group_arn \
 		-var "public_subnet_ids=$$public_subnet_ids" \
 		-var telemetry_collector_security_group_id=$$telemetry_collector_security_group_id \
@@ -214,6 +216,7 @@ clean-services-sherwin:
 	data_prepper_config_efs_id=$$(terraform output -raw data_prepper_config_efs_id | xargs)
 	telemetry_collector_config_efs_id=$$(terraform output -raw telemetry_collector_config_efs_id | xargs)
 	telemetry_collector_target_group_arn=$$(terraform output -raw telemetry_collector_target_group_arn | xargs)
+	telemetry_collector_target_group_arn_1=$$(terraform output -raw telemetry_collector_target_group_arn_1 | xargs)
 	data_prepper_target_group_arn=$$(terraform output -raw data_prepper_target_group_arn | xargs)
 	public_subnet_ids=$$(terraform output -json public_subnet_ids)
 	telemetry_collector_security_group_id=$$(terraform output -raw telemetry_collector_security_group_id | xargs)
@@ -227,6 +230,7 @@ clean-services-sherwin:
 		-var data_prepper_config_efs_id=$$data_prepper_config_efs_id \
 		-var telemetry_collector_config_efs_id=$$telemetry_collector_config_efs_id \
 		-var telemetry_collector_target_group_arn=$$telemetry_collector_target_group_arn \
+		-var telemetry_collector_target_group_arn_1=$$telemetry_collector_target_group_arn_1 \
 		-var data_prepper_target_group_arn=$$data_prepper_target_group_arn \
 		-var "public_subnet_ids=$$public_subnet_ids" \
 		-var telemetry_collector_security_group_id=$$telemetry_collector_security_group_id \
